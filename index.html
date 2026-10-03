@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><title>Fraction Quest 2 – Défi expert</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--ink:#12263a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Verdana,Arial,sans-serif;font-size:18px;color:#fff;background:#0b2a4a linear-gradient(160deg,#07162b,#0e4a6e 60%,#0f8b8d) fixed}
+.wrap{max-width:760px;margin:auto;padding:16px}
+h1{font-size:2.1em;text-align:center;margin:.3em 0;text-shadow:0 4px 0 #0005}
+h1 span{color:#ffa23f}
+.sub{text-align:center;margin:0 0 16px;font-size:1.05em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.lv{background:#fff;color:var(--ink);border:0;border-bottom:8px solid var(--k);border-radius:24px;padding:16px;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .15s}
+.lv:hover,.lv:focus-visible{transform:translateY(-4px) rotate(1deg)}
+.lv .e{font-size:2.8em}.lv .s{color:#ffb400;font-size:1.6em;letter-spacing:4px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;font-weight:700}
+.dots{display:flex;gap:8px}.dots i{width:20px;height:20px;border-radius:50%;background:#ffffff40;border:3px solid #fff}.dots i.d{background:#ffa23f}.dots i.n{box-shadow:0 0 0 4px #ffa23f80}
+.ghost{background:#ffffff26;color:#fff;border:2px solid #fff;border-radius:14px;padding:8px 14px;font:inherit;font-size:.9em;cursor:pointer;margin:2px}
+.card{background:#fff;color:var(--ink);border-radius:28px;padding:20px;text-align:center;box-shadow:0 10px 0 #0004}
+.card .ghost{background:#e8f4ff;color:var(--ink);border-color:#0e4a6e}
+.mascot{font-size:3em;animation:hop 1.6s infinite}
+@keyframes hop{50%{transform:translateY(-8px)}}
+h2{margin:.2em 0 .4em;font-size:1.4em}
+.vis{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0;overflow-x:auto}
+.eq{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;font-size:1.3em;font-weight:800}
+.st{font-size:1.05em;line-height:1.9;max-width:540px;margin:0}.st .fr{font-size:1.4em;margin:0 4px}
+.qm{color:#e11d74;font-size:1.5em}
+.fr{display:inline-flex;flex-direction:column;align-items:center;font-weight:800;font-size:1.9em;line-height:1.1;vertical-align:middle}
+.fr i{display:block;width:100%;min-width:34px;height:5px;background:currentColor;border-radius:3px;margin:3px 0}
+.ch{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:12px}
+.c{min-height:90px;background:#eef6ff;color:var(--ink);border:4px solid #3b8fd6;border-radius:22px;font:inherit;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px;transition:transform .12s}
+.c:hover:not(:disabled),.c:focus-visible{transform:scale(1.05);background:#fff}
+.c.ok{background:#b9f6dc;border-color:#10b981;animation:pop .5s}
+.c.no{background:#ffd6e1;border-color:#ef4444;opacity:.55;animation:shake .4s}
+@keyframes pop{50%{transform:scale(1.12)}}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.good{font-size:1.5em;font-weight:800;color:#059669;margin:12px 0 4px}
+.try{font-size:1.15em;font-weight:700;color:#be185d;margin:12px 0 4px}
+.go{background:#ff8a1f;color:#fff;border:0;border-bottom:6px solid #b35200;border-radius:18px;padding:14px 28px;font:inherit;font-weight:800;font-size:1.1em;cursor:pointer;margin:6px}
+.big{font-size:3em;letter-spacing:6px;color:#ffb400}
+.cf{position:fixed;bottom:-10px;font-size:30px;animation:up 1.5s ease-out forwards;pointer-events:none}
+@keyframes up{to{transform:translateY(-105vh) rotate(360deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body><div class="wrap" id="app"></div>
+<script>
+const $=s=>document.querySelector(s),R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),sh=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+const F=(n,d)=>`<span class="fr"><b>${n}</b><i></i><b>${d}</b></span>`;
+const COL=['#ff4d8d','#37b6ff','#2ee6a6','#ffa23f'],CC=()=>COL[R(0,3)];
+const NU=['','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix'],DN={3:'tiers',4:'quart',5:'cinquième',6:'sixième',7:'septième',8:'huitième',9:'neuvième',10:'dixième'};
+const W=(n,d)=>`${NU[n]} ${DN[d]}${n>1&&d!=3?'s':''}`;
+function pie(n,d,c,s=130){let o=`<svg width="${s}" height="${s}" viewBox="-52 -52 104 104" role="img" aria-label="${n} parts sur ${d}">`;const p=t=>[(48*Math.cos(t)).toFixed(1),(48*Math.sin(t)).toFixed(1)];for(let i=0;i<d;i++){const a=i*2*Math.PI/d-Math.PI/2,b=(i+1)*2*Math.PI/d-Math.PI/2,[x,y]=p(a),[u,v]=p(b);o+=`<path d="M0 0L${x} ${y}A48 48 0 0 1 ${u} ${v}Z" fill="${i<n?c:'#eef0ff'}" stroke="#12263a" stroke-width="2.5"/>`}return o+'</svg>'}
+const bar=(d,cl,w=280)=>{let o=`<svg width="${w}" height="40" viewBox="0 0 ${w} 40" aria-hidden="true">`;const s=(w-4)/d;for(let i=0;i<d;i++)o+=`<rect x="${2+i*s}" y="2" width="${s}" height="36" rx="4" fill="${cl[i]||'#eef0ff'}" stroke="#12263a" stroke-width="2.5"/>`;return o+'</svg>'};
+const cols=(d,sg)=>{const a=Array(d).fill(null);let k=0;sg.forEach(([n,c])=>{for(let i=0;i<n;i++)a[k++]=c});return a};
+function cand(c,w,fn){const seen=new Set([c.join()]),o=[{h:fn(c),ok:1}];for(const x of sh(w)){if(o.length>=3)break;if(!seen.has(x.join())){seen.add(x.join());o.push({h:fn(x)})}}return sh(o)}
+const bars=(a,d,c)=>a.map(x=>`<div>${bar(d,cols(d,[[x,c]]),200)} <b>${x}/${d}</b></div>`).join('');
+
+function q1(i){const d=R(3,10),n=R(1,d-1),c=CC(),t=i%3,ws=[[d,n],[d-n,d],[n,d+1],[n+1,d],[n-1,d]].filter(x=>x[0]>0);
+ if(t==0)return{t:'Quelle fraction est coloriée ?',v:pie(n,d,c,170),hint:`Compte toutes les parts (${d}) en bas, les parts coloriées (${n}) en haut.`,help:'<small>Compte toutes les parts, puis les parts coloriées.</small>',ch:cand([n,d],ws,x=>F(x[0],x[1]))};
+ if(t==1)return{t:'Écris cette fraction en chiffres.',s:W(n,d),v:`<div class="eq">${W(n,d)}</div>`,hint:`« ${DN[d]} » veut dire ${d} parts en tout : ${d} va en bas.`,help:pie(n,d,c,150),ch:cand([n,d],ws,x=>F(x[0],x[1]))};
+ return{t:'Comment lit-on cette fraction ?',s:`${n} sur ${d}`,v:F(n,d),hint:'Le nombre du bas donne le nom : 4 → quarts, 5 → cinquièmes…',help:pie(n,d,c,150),ch:cand([n,d],[[n+1,d],[n-1,d],[n,d+1],[n,d-1],[d-n,d]].filter(x=>x[0]>=1&&x[0]<x[1]&&x[1]>=3&&x[1]<=10),x=>W(x[0],x[1]))}}
+function q2(){const d=R(5,10),c=CC(),big=R(0,1),a=sh([...Array(d-1).keys()].map(x=>x+1)).slice(0,3),b=big?Math.max(...a):Math.min(...a);
+ return{t:big?'Quelle est la plus grande fraction ?':'Quelle est la plus petite fraction ?',hint:'Même dénominateur : compare les numérateurs (les nombres du haut).',help:bars(a,d,c),ch:a.map(x=>({h:F(x,d),ok:x==b}))}}
+function q3(){const c=CC(),big=R(0,1),a=sh([2,3,4,5,6,7,8,9,10,12]).slice(0,3),b=big?Math.min(...a):Math.max(...a);
+ return{t:big?'Quelle est la plus grande fraction ?':'Quelle est la plus petite fraction ?',hint:'Attention ! Plus le nombre du bas est grand, plus les parts sont petites.',help:a.map(x=>`<div>${bar(x,cols(x,[[1,c]]),200)} <b>1/${x}</b></div>`).join(''),ch:a.map(x=>({h:F(1,x),ok:x==b}))}}
+function q4(i){const d=R(5,10),t=i%4,add=t==0||t==2||(t==3&&R(0,1)==1),nm=['Léo','Inès','Sam'][R(0,2)];let a,b,r;
+ if(add){a=R(1,d-2);b=R(1,d-1-a);r=a+b}else{a=R(2,d-1);b=R(1,a-1);r=a-b}
+ const op=add?'+':'−',help=add?bar(d,cols(d,[[a,'#ff4d8d'],[b,'#37b6ff']]))+`<small>rose : ${a} parts · bleu : ${b} parts</small>`:bar(d,cols(d,[[r,'#ff4d8d'],[b,'#b8b8c8']]))+`<small>gris : ${b} parts enlevées</small>`;
+ const hint=`Le dénominateur ne change pas. On ${add?'additionne':'soustrait'} seulement les numérateurs : ${a} ${op} ${b}.`,wr=[[r,2*d],[r+1,d],[r-1,d],[a+b,d],[a,b]].filter(x=>x[0]>0&&x[1]>0);
+ if(t==2){const m=[[r+a,d],[r,d],[b+1,d],[b-1,d],[a,d]].filter(x=>x[0]>0);return{t:'Quelle fraction manque ?',s:`${a} sur ${d} plus combien égale ${r} sur ${d}`,v:`<div class="eq">${F(a,d)} + <span class="qm">▢</span> = ${F(r,d)}</div>`,hint:`On cherche ce qu'il faut ajouter : ${r} − ${a}.`,help:bar(d,cols(d,[[a,'#ff4d8d'],[b,'#37b6ff']])),ch:cand([b,d],m,x=>F(x[0],x[1]))}}
+ if(t==3)return{t:'Lis le problème.',s:add?`${nm} mange ${a} sur ${d} d'un gâteau, puis ${b} sur ${d}. Quelle fraction du gâteau a été mangée ?`:`Il reste ${a} sur ${d} d'un gâteau. ${nm} en mange ${b} sur ${d}. Quelle fraction du gâteau reste-t-il ?`,
+  v:`<p class="st">${add?`${nm} mange ${F(a,d)} d'un gâteau, puis ${F(b,d)}. Quelle fraction du gâteau a été mangée ?`:`Il reste ${F(a,d)} d'un gâteau. ${nm} en mange ${F(b,d)}. Quelle fraction du gâteau reste-t-il ?`}</p>`,hint,help,ch:cand([r,d],wr,x=>F(x[0],x[1]))};
+ return{t:'Calcule !',s:`${a} sur ${d} ${add?'plus':'moins'} ${b} sur ${d}`,v:`<div class="eq">${F(a,d)} ${op} ${F(b,d)} = <span class="qm">?</span></div>`,hint,help,ch:cand([r,d],wr,x=>F(x[0],x[1]))}}
+const q5=i=>[q1,q2,q3,q4][R(0,3)](i);
+
+const LV=[{n:'Lire et écrire',e:'🔤',q:q1,k:'#ff4d8d'},{n:'Comparer : même dénominateur',e:'⚔️',q:q2,k:'#37b6ff'},{n:'Comparer : numérateur 1',e:'🚀',q:q3,k:'#2ee6a6'},{n:'Calculs et problèmes',e:'🧪',q:q4,k:'#ffa23f'},{n:'Défi final',e:'🔥',q:q5,k:'#a78bfa'}];
+const MSG=['Bravo ! 🎉','Super ! 🌟','Génial ! 🚀','Bien joué ! 💪','Excellent ! 🔥'],NX='<button class="go" onclick="nextQ()">Suivant ➡</button>';
+const st={stars:[0,0,0,0,0],total:0};
+function menu(){speechSynthesis.cancel();$('#app').innerHTML=`<h1>🐲 Fraction <span>Quest 2</span></h1><p class="sub">Défi expert ! Sans aide = 10 points, avec aide ou erreur = 5 points.<br>⭐ ${st.total} points</p><div class="grid">${LV.map((l,i)=>`<button class="lv" style="--k:${l.k}" onclick="play(${i})"><span class="e">${l.e}</span><b>${l.n}</b><span class="s" aria-label="${st.stars[i]} étoiles sur 3">${'★'.repeat(st.stars[i])+'☆'.repeat(3-st.stars[i])}</span></button>`).join('')}</div>`}
+function play(l){Object.assign(st,{l,i:0,fc:0,score:0});ask()}
+function ask(){st.err=0;st.lock=0;st.help=0;const q=st.q=LV[st.l].q(st.i);
+ $('#app').innerHTML=`<div class="top"><button class="ghost" onclick="menu()">⬅ Menu</button><div class="dots" aria-label="Question ${st.i+1} sur 5">${[0,1,2,3,4].map(k=>`<i class="${k<st.i?'d':k==st.i?'n':''}"></i>`).join('')}</div><div>⭐ ${st.score}</div></div>
+ <div class="card"><div class="mascot">🐲</div><h2>${q.t}</h2><button class="ghost" onclick="say()">🔊 Écouter</button><button class="ghost" onclick="help()">👀 Un peu d'aide</button><div class="vis">${q.v||''}</div><div class="vis" id="hp"></div><div class="ch">${q.ch.map((c,i)=>`<button class="c" onclick="pick(${i})">${c.h}</button>`).join('')}</div><div id="fb" aria-live="polite"></div></div>`}
+function help(){if(st.lock)return;st.help=1;$('#hp').innerHTML=st.q.help}
+function pick(i){if(st.lock)return;const q=st.q,B=document.querySelectorAll('.c'),fb=$('#fb');
+ if(q.ch[i].ok){st.lock=1;B[i].classList.add('ok');const clean=!st.err&&!st.help,p=clean?10:5;if(clean)st.fc++;st.score+=p;fb.innerHTML=`<p class="good">${MSG[R(0,4)]} +${p}</p>`+NX;burst()}
+ else{st.err++;B[i].classList.add('no');B[i].disabled=true;
+  if(st.err==1)fb.innerHTML=`<p class="try">Presque ! Réessaie 💪<br><small>💡 ${q.hint}</small></p>`;
+  else{st.lock=1;B.forEach((x,j)=>{if(q.ch[j].ok)x.classList.add('ok')});fb.innerHTML='<p class="try">Voici la bonne réponse 👀</p>'+NX}}}
+function nextQ(){speechSynthesis.cancel();st.i++;st.i>=5?end():ask()}
+function end(){const s=st.fc==5?3:st.fc>=3?2:1;st.stars[st.l]=Math.max(st.stars[st.l],s);st.total+=st.score;burst();
+ $('#app').innerHTML=`<div class="card"><div class="mascot">🏆</div><h2>Monde terminé !</h2><div class="big">${'★'.repeat(s)+'☆'.repeat(3-s)}</div><p>${st.fc} réponses justes sans aide et sans erreur<br>+ ${st.score} points</p><button class="go" onclick="play(${st.l})">🔁 Rejouer</button>${st.l<4?`<button class="go" onclick="play(${st.l+1})">Monde suivant ➡</button>`:''}<button class="go" onclick="menu()">🏠 Menu</button></div>`}
+function say(){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(st.q.s||st.q.t);u.lang='fr-FR';speechSynthesis.speak(u)}
+function burst(){for(let i=0;i<16;i++){const s=document.createElement('span');s.className='cf';s.textContent=['⭐','🎉','✨','💥'][i%4];s.style.left=R(5,95)+'vw';s.style.animationDelay=Math.random()*.4+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),2000)}}
+menu();
+</script></body></html>
